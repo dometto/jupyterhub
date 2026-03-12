@@ -721,20 +721,28 @@ class ConfigurableHTTPProxy(Proxy):
         api_server = Server.from_url(self.api_url)
         env = os.environ.copy()
         env['CONFIGPROXY_AUTH_TOKEN'] = self.auth_token
+
+        if self.hub.url.startswith('unix+http'):
+            server_args = ['--socket', self.hub.url]
+        else:
+            server_args = ['--ip', public_server.ip, '--port', str(public_server.port)]
+            
+        if self.api_url.startswith('unix+http'):
+            api_args = ['--api-socket', self.api_url]
+        else:
+            api_args = ['--api-ip', api_server.ip, '--api-port',  str(api_server.port)]
+
+        env = os.environ.copy()
+        env['CONFIGPROXY_AUTH_TOKEN'] = self.auth_token
         cmd = self.command + [
-            '--ip',
-            public_server.ip,
-            '--port',
-            str(public_server.port),
-            '--api-ip',
-            api_server.ip,
-            '--api-port',
-            str(api_server.port),
+            *server_args,
+            *api_args,
             '--error-target',
             url_path_join(self.hub.url, 'error'),
             '--log-level',
             self.log_level,
         ]
+
         if self.app.subdomain_host:
             cmd.append('--host-routing')
         if self.ssl_key:
