@@ -730,7 +730,7 @@ class ConfigurableHTTPProxy(Proxy):
         if self.api_url.startswith('unix+http'):
             api_args = ['--api-socket', self.api_url]
         else:
-            api_args = ['--api-ip', api_server.ip, '--api-port',  tr(api_server.port)]
+            api_args = ['--api-ip', api_server.ip, '--api-port',  str(api_server.port)]
 
         env = os.environ.copy()
         env['CONFIGPROXY_AUTH_TOKEN'] = self.auth_token
